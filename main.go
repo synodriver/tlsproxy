@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"encoding/hex"
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -160,8 +160,8 @@ func transferheader(rawheaders map[string]gjson.Result) map[string]string {
 
 func transferjsonarray(h []gjson.Result) []string {
 	ret := make([]string, 0, len(h))
-	for i, v := range h {
-		ret[i] = v.String()
+	for _, v := range h {
+		ret = append(ret, v.String())
 	}
 	return ret
 }
@@ -217,7 +217,7 @@ func main() {
 		// body, optional
 		var body []byte
 		if body_ := jsondata.Get("body"); body_.Exists() && body_.Type == gjson.String {
-			rawbody, err := hex.DecodeString(body_.String())
+			rawbody, err := base64.StdEncoding.DecodeString(body_.String())
 			if err != nil {
 				c.JSON(500, gin.H{
 					"error": err.Error(),
@@ -244,7 +244,7 @@ func main() {
 		}
 		// AllowRedirects, optional
 		var AllowRedirects bool
-		if AllowRedirects_ := jsondata.Get("AllowRedirects"); AllowRedirects_.Exists() && AllowRedirects_.IsBool() {
+		if AllowRedirects_ := jsondata.Get("allow_redirects"); AllowRedirects_.Exists() && AllowRedirects_.IsBool() {
 			AllowRedirects = AllowRedirects_.Bool()
 		} else {
 			AllowRedirects = true
@@ -349,6 +349,8 @@ func main() {
 						ret[k] = v.String()
 					case gjson.Number:
 						ret[k] = int(v.Uint())
+					case gjson.False, gjson.True:
+						ret[k] = v.Bool()
 					}
 				}
 				return ret
@@ -370,6 +372,7 @@ func main() {
 				}
 				H2PriorityFrames = append(H2PriorityFrames, tmpele)
 			}
+			fmt.Println(H2PriorityFrames)
 		} else {
 			H2PriorityFrames = nil
 		}
@@ -386,10 +389,11 @@ func main() {
 			return
 		}
 		// return
+		//fmt.Println(string(respody))
 		c.JSON(200, gin.H{
 			"status":  status,
 			"headers": respheaders,
-			"body":    hex.EncodeToString(respody),
+			"body":    base64.StdEncoding.EncodeToString(respody),
 		})
 	})
 	var host string
