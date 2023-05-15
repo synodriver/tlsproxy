@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"flag"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
 	http "github.com/wangluozhe/fhttp"
@@ -20,6 +19,7 @@ func sessionRequestPatched(session *requests.Session, method, rawurl string, req
 	if request == nil {
 		request = url.NewRequest()
 	}
+	// request.Body 0  == ""
 	req := &models.Request{
 		Method:  strings.ToUpper(method),
 		Url:     rawurl,
@@ -29,6 +29,7 @@ func sessionRequestPatched(session *requests.Session, method, rawurl string, req
 		Data:    request.Data,
 		Files:   request.Files,
 		Json:    request.Json,
+		Body:    request.Body,
 		Auth:    request.Auth,
 	}
 	preq, err := session.Prepare_request(req)
@@ -36,7 +37,7 @@ func sessionRequestPatched(session *requests.Session, method, rawurl string, req
 		return nil, err
 	}
 	if rawBody != nil {
-		fmt.Println("set Arbitrary body")
+		//fmt.Println("set Arbitrary body", string(rawBody))
 		preq.Body = bytes.NewReader(rawBody) // Arbitrary body
 	}
 	//fmt.Println("check proxy", request.Proxies)
@@ -81,7 +82,7 @@ func request(method, rawUrl string, headers map[string]string, headerorder []str
 	}
 	// set tls extension
 	if SupportedSignatureAlgorithms != nil || CertCompressionAlgo != nil || DelegatedCredentials != nil || SupportedVersions != nil || PSKKeyExchangeModes != nil || KeyShareCurves != nil {
-		fmt.Println("set tls extension")
+		//fmt.Println("set tls extension")
 		es := &transport.Extensions{}
 		if SupportedSignatureAlgorithms != nil && len(SupportedSignatureAlgorithms) > 0 {
 			es.SupportedSignatureAlgorithms = SupportedSignatureAlgorithms
@@ -131,6 +132,7 @@ func request(method, rawUrl string, headers map[string]string, headerorder []str
 	if err != nil {
 		return 0, nil, nil, err
 	}
+	//fmt.Println(r.Text)
 	return r.StatusCode, transferrespheaders(r.Headers), r.Content, nil
 }
 
@@ -372,7 +374,6 @@ func main() {
 				}
 				H2PriorityFrames = append(H2PriorityFrames, tmpele)
 			}
-			fmt.Println(H2PriorityFrames)
 		} else {
 			H2PriorityFrames = nil
 		}
