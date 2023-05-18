@@ -5,7 +5,8 @@ go 1.20
 require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/tidwall/gjson v1.14.4
-	github.com/wangluozhe/requests v1.1.1
+	github.com/wangluozhe/fhttp v0.0.0-20230512135433-5c2ebfb4868a
+	github.com/wangluozhe/requests v1.1.12
 )
 
 require (
@@ -33,7 +34,6 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
-	github.com/wangluozhe/fhttp v0.0.0-20230512135433-5c2ebfb4868a // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/net v0.10.0 // indirect

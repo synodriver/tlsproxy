@@ -48,6 +48,7 @@ POST http://127.0.0.1:8080/request
   "supported_versions": ["1.3",
 			"1.2"],
   "pskkey_exchange_modes": ["PskModeDHE"],
+  "signature_algorithms_cert": ["PKCS1WithSHA256"],
   "key_share_curves": ["X25519",
 			"P256"],
   "h2settings": {"HEADER_TABLE_SIZE": 65536,

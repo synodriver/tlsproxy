@@ -51,7 +51,7 @@ func sessionRequestPatched(session *requests.Session, method, rawurl string, req
 func request(method, rawUrl string, headers map[string]string, headerorder []string, pheaderorder []string, body []byte,
 	proxy string, timeout time.Duration, AllowRedirects, verify bool, cert []string, ja3 string,
 	SupportedSignatureAlgorithms, CertCompressionAlgo []string, RecordSizeLimit int,
-	DelegatedCredentials, SupportedVersions, PSKKeyExchangeModes, KeyShareCurves []string,
+	DelegatedCredentials, SupportedVersions, PSKKeyExchangeModes, SignatureAlgorithmsCert, KeyShareCurves []string,
 	H2Settings map[string]int, H2SettingsOrder []string, H2ConnectionFlow int, H2HeaderPriority map[string]interface{}, H2PriorityFrames []map[string]interface{}) (int, map[string]string, []byte, error) {
 	req := &url.Request{}
 	if proxy != "" {
@@ -81,7 +81,7 @@ func request(method, rawUrl string, headers map[string]string, headerorder []str
 		req.Ja3 = ja3
 	}
 	// set tls extension
-	if SupportedSignatureAlgorithms != nil || CertCompressionAlgo != nil || DelegatedCredentials != nil || SupportedVersions != nil || PSKKeyExchangeModes != nil || KeyShareCurves != nil {
+	if SupportedSignatureAlgorithms != nil || CertCompressionAlgo != nil || DelegatedCredentials != nil || SupportedVersions != nil || PSKKeyExchangeModes != nil || SignatureAlgorithmsCert != nil || KeyShareCurves != nil {
 		//fmt.Println("set tls extension")
 		es := &transport.Extensions{}
 		if SupportedSignatureAlgorithms != nil && len(SupportedSignatureAlgorithms) > 0 {
@@ -99,6 +99,9 @@ func request(method, rawUrl string, headers map[string]string, headerorder []str
 		}
 		if PSKKeyExchangeModes != nil && len(PSKKeyExchangeModes) > 0 {
 			es.PSKKeyExchangeModes = PSKKeyExchangeModes
+		}
+		if SignatureAlgorithmsCert != nil && len(SignatureAlgorithmsCert) > 0 {
+			es.SignatureAlgorithmsCert = SignatureAlgorithmsCert
 		}
 		if KeyShareCurves != nil && len(KeyShareCurves) > 0 {
 			es.KeyShareCurves = KeyShareCurves
@@ -310,6 +313,12 @@ func main() {
 		} else {
 			PSKKeyExchangeModes = nil
 		}
+		var SignatureAlgorithmsCert []string
+		if SignatureAlgorithmsCert_ := jsondata.Get("signature_algorithms_cert"); SignatureAlgorithmsCert_.Exists() && SignatureAlgorithmsCert_.IsArray() {
+			SignatureAlgorithmsCert = transferjsonarray(SignatureAlgorithmsCert_.Array())
+		} else {
+			SignatureAlgorithmsCert = nil
+		}
 		var KeyShareCurves []string
 		if KeyShareCurves_ := jsondata.Get("key_share_curves"); KeyShareCurves_.Exists() && KeyShareCurves_.IsArray() {
 			KeyShareCurves = transferjsonarray(KeyShareCurves_.Array())
@@ -381,7 +390,7 @@ func main() {
 		//fmt.Println(method, len(method))
 		// do request
 		status, respheaders, respody, err := request(method, url, headers, headerorder, pheaderorder, body, proxy, timeout, AllowRedirects, verify, cert, ja3,
-			SupportedSignatureAlgorithms, CertCompressionAlgo, RecordSizeLimit, DelegatedCredentials, SupportedVersions, PSKKeyExchangeModes, KeyShareCurves,
+			SupportedSignatureAlgorithms, CertCompressionAlgo, RecordSizeLimit, DelegatedCredentials, SupportedVersions, PSKKeyExchangeModes, SignatureAlgorithmsCert, KeyShareCurves,
 			H2Settings, H2SettingsOrder, H2ConnectionFlow, H2HeaderPriority, H2PriorityFrames)
 		if err != nil {
 			c.JSON(500, gin.H{
