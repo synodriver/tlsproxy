@@ -28,6 +28,7 @@ POST http://127.0.0.1:8080/request
   "verify": false,
   "cert": [key, cert, rootca],
   "ja3": "xxxx",
+  "force_http1": false,
   "supported_signature_algorithms": ["ECDSAWithP256AndSHA256",
 			"ECDSAWithP384AndSHA384",
 			"ECDSAWithP521AndSHA512",

@@ -77,8 +77,8 @@ github.com/ugorji/go/codec v1.2.9 h1:rmenucSohSTiyL09Y+l2OCk+FrMxGMzho2+tjr5ticU
 github.com/ugorji/go/codec v1.2.9/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZgYf6w6lg=
 github.com/wangluozhe/fhttp v0.0.0-20230512135433-5c2ebfb4868a h1:nFqhBDkWfNrI5h8nAOv4orMHi0w3qMrd7GoBFXXZGmc=
 github.com/wangluozhe/fhttp v0.0.0-20230512135433-5c2ebfb4868a/go.mod h1:kAK+x1U0Wmy/htOSEeV31JyFBAVndp/orqVJZTq9FxM=
-github.com/wangluozhe/requests v1.1.12 h1:O1fClaupeXB1swPwxAAMl1gPz1jX8juDQrX+DYSg+p8=
-github.com/wangluozhe/requests v1.1.12/go.mod h1:igkT9iesQyiQTDMm1d/yncWnsCxaeu00GjfyAv0565Q=
+github.com/wangluozhe/requests v1.1.14 h1:AGs4WKlDzrrOUC6fW66WTBxK8UtR1iUs+n1Tqc0rNKI=
+github.com/wangluozhe/requests v1.1.14/go.mod h1:HE1JlDPaLGNE2i85/yta4tkTpyLRFWY9up8vRQQsLO4=
 golang.org/x/arch v0.0.0-20210923205945-b76863e36670 h1:18EFjUmQOcUvxNYSkA6jO9VAiXCnxFY6NyDX0bHDmkU=
 golang.org/x/arch v0.0.0-20210923205945-b76863e36670/go.mod h1:5om86z9Hs0C8fWVUuoMHwpExlXzs5Tkyp9hOrfG7pp8=
 golang.org/x/crypto v0.9.0 h1:LF6fAI+IutBocDJ2OT0Q1g8plpYljMZ4+lty+dsqw3g=

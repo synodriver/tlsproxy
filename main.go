@@ -11,6 +11,7 @@ import (
 	"github.com/wangluozhe/requests/models"
 	"github.com/wangluozhe/requests/transport"
 	"github.com/wangluozhe/requests/url"
+	"log"
 	"strings"
 	"time"
 )
@@ -49,7 +50,7 @@ func sessionRequestPatched(session *requests.Session, method, rawurl string, req
 }
 
 func request(method, rawUrl string, headers map[string]string, headerorder []string, pheaderorder []string, body []byte,
-	proxy string, timeout time.Duration, AllowRedirects, verify bool, cert []string, ja3 string,
+	proxy string, timeout time.Duration, AllowRedirects, verify bool, cert []string, ja3 string, forceHTTP1 bool,
 	SupportedSignatureAlgorithms, CertCompressionAlgo []string, RecordSizeLimit int,
 	DelegatedCredentials, SupportedVersions, PSKKeyExchangeModes, SignatureAlgorithmsCert, KeyShareCurves []string,
 	H2Settings map[string]int, H2SettingsOrder []string, H2ConnectionFlow int, H2HeaderPriority map[string]interface{}, H2PriorityFrames []map[string]interface{}) (int, map[string]string, []byte, error) {
@@ -80,6 +81,7 @@ func request(method, rawUrl string, headers map[string]string, headerorder []str
 	if ja3 != "" {
 		req.Ja3 = ja3
 	}
+	req.ForceHTTP1 = forceHTTP1
 	// set tls extension
 	if SupportedSignatureAlgorithms != nil || CertCompressionAlgo != nil || DelegatedCredentials != nil || SupportedVersions != nil || PSKKeyExchangeModes != nil || SignatureAlgorithmsCert != nil || KeyShareCurves != nil {
 		//fmt.Println("set tls extension")
@@ -171,7 +173,7 @@ func transferjsonarray(h []gjson.Result) []string {
 	return ret
 }
 
-func main() {
+func runserver() {
 	r := gin.Default()
 	r.POST("/request", func(c *gin.Context) {
 		data, err := c.GetRawData()
@@ -275,6 +277,12 @@ func main() {
 			ja3 = ja3_.String()
 		} else {
 			ja3 = ""
+		}
+		var forceHTTP1 bool
+		if forceHTTP1_ := jsondata.Get("force_http1"); forceHTTP1_.Exists() && forceHTTP1_.IsBool() {
+			forceHTTP1 = forceHTTP1_.Bool()
+		} else {
+			forceHTTP1 = false // default will http2
 		}
 		// tls fingerprint, optional
 		var SupportedSignatureAlgorithms []string
@@ -389,7 +397,9 @@ func main() {
 		//h2s := &transport.H2Settings{}
 		//fmt.Println(method, len(method))
 		// do request
-		status, respheaders, respody, err := request(method, url, headers, headerorder, pheaderorder, body, proxy, timeout, AllowRedirects, verify, cert, ja3,
+		log.Printf("receiving request %v %v", method, url)
+
+		status, respheaders, respody, err := request(method, url, headers, headerorder, pheaderorder, body, proxy, timeout, AllowRedirects, verify, cert, ja3, forceHTTP1,
 			SupportedSignatureAlgorithms, CertCompressionAlgo, RecordSizeLimit, DelegatedCredentials, SupportedVersions, PSKKeyExchangeModes, SignatureAlgorithmsCert, KeyShareCurves,
 			H2Settings, H2SettingsOrder, H2ConnectionFlow, H2HeaderPriority, H2PriorityFrames)
 		if err != nil {
@@ -410,4 +420,89 @@ func main() {
 	flag.StringVar(&host, "host", "127.0.0.1:11000", "host and port to listen")
 	flag.Parse()
 	r.Run(host) // 监听并在 0.0.0.0:8080 上启动服务
+}
+
+func main() {
+	runserver()
+
+	//req := url.NewRequest()
+	//headers := &http.Header{
+	//	"User-Agent":                []string{"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/112.0"},
+	//	"accept":                    []string{"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"},
+	//	"accept-language":           []string{"zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2"},
+	//	"accept-encoding":           []string{"gzip, deflate, br"},
+	//	"upgrade-insecure-requests": []string{"1"},
+	//	"sec-fetch-dest":            []string{"document"},
+	//	"sec-fetch-mode":            []string{"navigate"},
+	//	"sec-fetch-site":            []string{"none"},
+	//	"sec-fetch-user":            []string{"?1"},
+	//	"te":                        []string{"trailers"},
+	//	http.PHeaderOrderKey: []string{
+	//		":method",
+	//		":path",
+	//		":authority",
+	//		":scheme",
+	//	},
+	//	http.HeaderOrderKey: []string{
+	//		"user-agent",
+	//		"accept",
+	//		"accept-language",
+	//		"accept-encoding",
+	//		"upgrade-insecure-requests",
+	//		"sec-fetch-dest",
+	//		"sec-fetch-mode",
+	//		"sec-fetch-site",
+	//		"sec-fetch-user",
+	//		"te",
+	//	},
+	//}
+	//req.Headers = headers
+	//req.Ja3 = "771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-21,29-23-24,0"
+	//es := &transport.Extensions{
+	//	SupportedSignatureAlgorithms: []string{
+	//		"ECDSAWithP256AndSHA256",
+	//		"ECDSAWithP384AndSHA384",
+	//		"ECDSAWithP521AndSHA512",
+	//		"PSSWithSHA256",
+	//		"PSSWithSHA384",
+	//		"PSSWithSHA512",
+	//		"PKCS1WithSHA256",
+	//		"PKCS1WithSHA384",
+	//		"PKCS1WithSHA512",
+	//		"ECDSAWithSHA1",
+	//		"PKCS1WithSHA1",
+	//	},
+	//	//CertCompressionAlgo: []string{
+	//	//	"brotli",
+	//	//},
+	//	RecordSizeLimit: 4001,
+	//	DelegatedCredentials: []string{
+	//		"ECDSAWithP256AndSHA256",
+	//		"ECDSAWithP384AndSHA384",
+	//		"ECDSAWithP521AndSHA512",
+	//		"ECDSAWithSHA1",
+	//	},
+	//	SupportedVersions: []string{
+	//		"1.3",
+	//		"1.2",
+	//	},
+	//	PSKKeyExchangeModes: []string{
+	//		"PskModeDHE",
+	//	},
+	//	KeyShareCurves: []string{
+	//		"X25519",
+	//		"P256",
+	//	},
+	//}
+	//tes := transport.ToTLSExtensions(es)
+	//req.TLSExtensions = tes
+	//r, err := requests.Get("https://tls.peet.ws/api/all", req)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//fmt.Println(r.Request.Headers)
+	//fmt.Println("url:", r.Url)
+	//fmt.Println("headers:", r.Headers)
+	//fmt.Println("text:", r.Text)
+	//
 }

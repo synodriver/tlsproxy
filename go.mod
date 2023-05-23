@@ -6,7 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/wangluozhe/fhttp v0.0.0-20230512135433-5c2ebfb4868a
-	github.com/wangluozhe/requests v1.1.12
+	github.com/wangluozhe/requests v1.1.14
 )
 
 require (
