@@ -138,7 +138,7 @@ func request(method, rawUrl string, headers map[string]string, headerorder []str
 		return 0, nil, nil, err
 	}
 	//fmt.Println(r.Text)
-	return r.StatusCode, transferrespheaders(r.Headers), r.Content, nil
+	return r.StatusCode, transferrespheaders(http.Header(r.Headers)), r.Content, nil
 }
 
 func joinslice(s []string) string {
